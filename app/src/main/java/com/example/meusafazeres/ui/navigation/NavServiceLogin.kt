@@ -1,5 +1,6 @@
 package com.example.meusafazeres.ui.navigation
 
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -19,7 +20,8 @@ fun NavServiceLogin() {
 
     NavHost(
         navController = rootNavController,
-        startDestination = "login"
+        startDestination = "login",
+        modifier = Modifier.systemBarsPadding()
     ) {
         composable("login") {
             LoginScreen(

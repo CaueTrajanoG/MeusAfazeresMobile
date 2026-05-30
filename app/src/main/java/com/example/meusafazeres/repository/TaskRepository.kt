@@ -15,15 +15,34 @@ class TaskRepository {
     }
 
     suspend fun getTasks(userId: String, search: String? = null, page: Int = 1): List<Task> {
-        val response = api.getTasks()
-        val allTasks = response.documents?.map { doc ->
-            mapFirestoreToTask(doc)
-        } ?: emptyList()
+        val pageSize = 25
+        val offset = (page - 1) * pageSize
 
-        // Filter by userId (donoId) and search text locally since Firestore REST listing is limited
-        return allTasks.filter { 
-            it.donoId == userId && !it.removido && 
-            (search == null || it.titulo.contains(search, ignoreCase = true) || it.descricao.contains(search, ignoreCase = true))
+        val query = FirestoreQueryRequest(
+            structuredQuery = StructuredQuery(
+                from = listOf(CollectionSelector(collectionId = "tasks")),
+                where = Filter(
+                    fieldFilter = FieldFilter(
+                        field = FieldReference("donoId"),
+                        op = "EQUAL",
+                        value = FirestoreValue(stringValue = userId)
+                    )
+                ),
+                limit = pageSize,
+                offset = offset
+            )
+        )
+
+        val response = api.queryTasks(query)
+        val tasks = response.mapNotNull { it.document }.map { doc ->
+            mapFirestoreToTask(doc)
+        }
+
+        // Local search filtering as Firestore REST doesn't support easy "contains" in runQuery without complex indexing
+        return if (search != null) {
+            tasks.filter { it.titulo.contains(search, ignoreCase = true) || it.descricao.contains(search, ignoreCase = true) }
+        } else {
+            tasks
         }
     }
 
@@ -43,7 +62,19 @@ class TaskRepository {
     }
 
     suspend fun deleteTask(id: String) {
-        api.deleteTask(id)
+        // Logical deletion: Fetch the task (or just create a stub with the flag)
+        // Since we are using REST PATCH, we can just send the field we want to change.
+        val doc = FirestoreDocument(fields = TaskFields(
+            titulo = StringField(""), // Placeholder, won't be updated if not in mask
+            descricao = StringField(""),
+            prioridade = StringField(""),
+            status = StringField(""),
+            donoId = StringField(""),
+            dataCriacao = TimestampField(isoFormat.format(Date())),
+            removido = BooleanField(true)
+        ))
+        val updateMask = listOf("removido")
+        api.updateTask(id, updateMask, doc)
     }
 
     private fun mapTaskToFirestore(task: Task): TaskFields {

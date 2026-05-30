@@ -41,3 +41,56 @@ data class UserFields(
     val email: StringField,
     val dataCadastro: TimestampField
 )
+
+// --- Query DTOs ---
+
+data class FirestoreQueryRequest(
+    val structuredQuery: StructuredQuery
+)
+
+data class StructuredQuery(
+    val from: List<CollectionSelector>,
+    val where: Filter? = null,
+    val orderBy: List<Order>? = null,
+    val limit: Int? = null,
+    val offset: Int? = null
+)
+
+data class CollectionSelector(
+    val collectionId: String
+)
+
+data class Filter(
+    val compositeFilter: CompositeFilter? = null,
+    val fieldFilter: FieldFilter? = null
+)
+
+data class CompositeFilter(
+    val op: String, // "AND"
+    val filters: List<Filter>
+)
+
+data class FieldFilter(
+    val field: FieldReference,
+    val op: String, // "EQUAL"
+    val value: FirestoreValue
+)
+
+data class FieldReference(
+    val fieldPath: String
+)
+
+data class FirestoreValue(
+    val stringValue: String? = null,
+    val booleanValue: Boolean? = null
+)
+
+data class Order(
+    val field: FieldReference,
+    val direction: String // "DESCENDING" or "ASCENDING"
+)
+
+data class FirestoreQueryResponse<T>(
+    val document: FirestoreDocument<T>? = null,
+    val readTime: String? = null
+)

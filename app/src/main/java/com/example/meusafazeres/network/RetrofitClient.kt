@@ -4,7 +4,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
-    private const val BASE_URL = "https://firestore.googleapis.com/v1/projects/todo-app-pdm/databases/(default)/"
+    private const val BASE_URL = "https://firestore.googleapis.com/v1/projects/todo-app-pdm/databases/(default)/documents/"
 
     val instance: TaskApi by lazy {
         val retrofit = Retrofit.Builder()

@@ -23,24 +23,58 @@ class TaskViewModel : ViewModel() {
     private val _taskListState = mutableStateOf<TaskListState>(TaskListState.Idle)
     val taskListState: State<TaskListState> = _taskListState
 
+    private val _isLoadingMore = mutableStateOf(false)
+    val isLoadingMore: State<Boolean> = _isLoadingMore
+
+    private val _allLoadedTasks = mutableStateListOf<Task>()
     private var currentPage = 1
     private var currentSearch: String? = null
+    private var isEndReached = false
 
     fun loadTasks(userId: String, search: String? = null, isRefresh: Boolean = false) {
-        if (isRefresh) {
-            currentPage = 1
-        }
-        currentSearch = search
+        val isNewSearch = search != currentSearch
         
+        if (isRefresh || isNewSearch) {
+            currentPage = 1
+            _allLoadedTasks.clear()
+            isEndReached = false
+            _taskListState.value = TaskListState.Loading
+        }
+        
+        if (isEndReached && !isRefresh && !isNewSearch) return
+        if (currentPage > 1) _isLoadingMore.value = true
+        
+        currentSearch = search
+
         viewModelScope.launch {
-            if (currentPage == 1) _taskListState.value = TaskListState.Loading
             try {
-                val tasks = repository.getTasks(userId, search, currentPage)
-                _taskListState.value = TaskListState.Success(tasks)
+                val newTasks = repository.getTasks(userId, search, currentPage)
+                
+                // Filter out any duplicates that might already be in _allLoadedTasks
+                val nonDuplicateNewTasks = newTasks.filter { newTask ->
+                    _allLoadedTasks.none { it.id == newTask.id }
+                }
+
+                if (newTasks.isEmpty()) {
+                    isEndReached = true
+                    if (currentPage == 1) _taskListState.value = TaskListState.Success(emptyList())
+                } else {
+                    _allLoadedTasks.addAll(nonDuplicateNewTasks)
+                    _taskListState.value = TaskListState.Success(_allLoadedTasks.toList())
+                    currentPage++
+                }
             } catch (e: Exception) {
-                _taskListState.value = TaskListState.Error(e.message ?: "Erro ao carregar tarefas")
+                if (currentPage == 1) {
+                    _taskListState.value = TaskListState.Error(e.message ?: "Erro ao carregar tarefas")
+                }
+            } finally {
+                _isLoadingMore.value = false
             }
         }
+    }
+
+    fun loadNextPage(userId: String) {
+        loadTasks(userId, currentSearch)
     }
 
     fun toggleTaskStatus(task: Task) {
@@ -50,12 +84,11 @@ class TaskViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 repository.updateTask(updatedTask)
-                // Refresh list or update local state
-                if (taskListState.value is TaskListState.Success) {
-                    val currentTasks = (taskListState.value as TaskListState.Success).tasks.map {
-                        if (it.id == task.id) updatedTask else it
-                    }
-                    _taskListState.value = TaskListState.Success(currentTasks)
+                // Update local list
+                val index = _allLoadedTasks.indexOfFirst { it.id == task.id }
+                if (index != -1) {
+                    _allLoadedTasks[index] = updatedTask
+                    _taskListState.value = TaskListState.Success(_allLoadedTasks.toList())
                 }
             } catch (e: Exception) {
                 // Handle error
@@ -67,7 +100,8 @@ class TaskViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 repository.deleteTask(taskId)
-                loadTasks(userId, currentSearch, isRefresh = true)
+                _allLoadedTasks.removeAll { it.id == taskId }
+                _taskListState.value = TaskListState.Success(_allLoadedTasks.toList())
             } catch (e: Exception) {
                 // Handle error
             }
@@ -77,8 +111,9 @@ class TaskViewModel : ViewModel() {
     fun addTask(task: Task, userId: String) {
         viewModelScope.launch {
             try {
-                repository.createTask(task.copy(donoId = userId))
-                loadTasks(userId, currentSearch, isRefresh = true)
+                val createdTask = repository.createTask(task.copy(donoId = userId))
+                _allLoadedTasks.add(0, createdTask)
+                _taskListState.value = TaskListState.Success(_allLoadedTasks.toList())
             } catch (e: Exception) {
                 // Handle error
             }

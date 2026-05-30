@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.meusafazeres.model.Task
 import com.example.meusafazeres.ui.viewmodel.AuthState
 import com.example.meusafazeres.ui.viewmodel.AuthViewModel
 

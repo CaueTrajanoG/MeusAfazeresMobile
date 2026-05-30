@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.meusafazeres.model.Task
 import com.example.meusafazeres.ui.model.NavItem
 import com.example.meusafazeres.ui.screens.CadastroTaskScreen
 import com.example.meusafazeres.ui.screens.MainScreen
