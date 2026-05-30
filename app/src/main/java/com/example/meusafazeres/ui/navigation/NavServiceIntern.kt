@@ -34,7 +34,14 @@ fun NavServiceIntern(
     if (mostrarDialog) {
         AlertDialog(
             onDismissRequest = { mostrarDialog = false },
-            title = { Text(text = "Confirmar Saída") },
+            title = { 
+                Text(
+                    text = "Confirmar Saída",
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontSize = 28.sp,
+                    color = MaterialTheme.colorScheme.primary
+                ) 
+            },
             text = { Text(text = "Você realmente deseja sair do aplicativo?") },
             confirmButton = {
                 TextButton(onClick = {

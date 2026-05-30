@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.meusafazeres.model.Task
 import com.example.meusafazeres.ui.components.TaskCard
@@ -40,7 +41,14 @@ fun MainScreen(
     if (taskToDelete != null) {
         AlertDialog(
             onDismissRequest = { taskToDelete = null },
-            title = { Text(text = "Excluir Afazer") },
+            title = { 
+                Text(
+                    text = "Excluir Afazer",
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontSize = 28.sp,
+                    color = MaterialTheme.colorScheme.primary
+                ) 
+            },
             text = { Text(text = "Tem certeza que deseja excluir o afazer \"${taskToDelete?.titulo}\"? Esta ação não pode ser desfeita.") },
             confirmButton = {
                 TextButton(

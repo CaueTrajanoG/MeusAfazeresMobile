@@ -8,8 +8,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.meusafazeres.model.Task
+import com.example.meusafazeres.ui.components.AppLogo
 import com.example.meusafazeres.ui.viewmodel.AuthState
 import com.example.meusafazeres.ui.viewmodel.AuthViewModel
 
@@ -39,8 +41,7 @@ fun RegisterScreen(navController: NavController, viewModel: AuthViewModel) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(text = "Cadastro", style = MaterialTheme.typography.headlineLarge)
-        Spacer(modifier = Modifier.height(32.dp))
+        AppLogo()
 
         OutlinedTextField(
             value = nome,

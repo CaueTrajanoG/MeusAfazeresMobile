@@ -10,6 +10,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.meusafazeres.ui.components.AppLogo
 import com.example.meusafazeres.ui.viewmodel.AuthState
 import com.example.meusafazeres.ui.viewmodel.AuthViewModel
 
@@ -36,13 +37,7 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = "Meus Afazeres",
-            style = MaterialTheme.typography.headlineLarge,
-            fontSize = 64.sp,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Spacer(modifier = Modifier.height(32.dp))
+        AppLogo()
         
         OutlinedTextField(
             value = email,
