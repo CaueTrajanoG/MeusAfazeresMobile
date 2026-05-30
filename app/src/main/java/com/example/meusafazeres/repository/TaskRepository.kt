@@ -15,7 +15,7 @@ class TaskRepository {
     }
 
     suspend fun getTasks(userId: String, search: String? = null, page: Int = 1): List<Task> {
-        val pageSize = 25
+        val pageSize = 10
         val offset = (page - 1) * pageSize
 
         val query = FirestoreQueryRequest(
