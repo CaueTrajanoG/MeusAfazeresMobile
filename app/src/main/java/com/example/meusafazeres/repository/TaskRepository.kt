@@ -22,12 +22,26 @@ class TaskRepository {
             structuredQuery = StructuredQuery(
                 from = listOf(CollectionSelector(collectionId = "tasks")),
                 where = Filter(
-                    fieldFilter = FieldFilter(
-                        field = FieldReference("donoId"),
-                        op = "EQUAL",
-                        value = FirestoreValue(stringValue = userId)
+                    compositeFilter = CompositeFilter(
+                        op = "AND",
+                        filters = listOf(
+                            Filter(fieldFilter = FieldFilter(
+                                field = FieldReference("donoId"),
+                                op = "EQUAL",
+                                value = FirestoreValue(stringValue = userId)
+                            )),
+                            Filter(fieldFilter = FieldFilter(
+                                field = FieldReference("removido"),
+                                op = "EQUAL",
+                                value = FirestoreValue(booleanValue = false)
+                            ))
+                        )
                     )
                 ),
+                orderBy = listOf(Order(
+                    field = FieldReference("dataCriacao"),
+                    direction = "DESCENDING"
+                )),
                 limit = pageSize,
                 offset = offset
             )
@@ -38,11 +52,10 @@ class TaskRepository {
             mapFirestoreToTask(doc)
         }
 
-        // Local search filtering as Firestore REST doesn't support easy "contains" in runQuery without complex indexing
-        return if (search != null) {
-            tasks.filter { it.titulo.contains(search, ignoreCase = true) || it.descricao.contains(search, ignoreCase = true) }
-        } else {
-            tasks
+        // Local filtering as safety and search
+        return tasks.filter { 
+            !it.removido && 
+            (search == null || it.titulo.contains(search, ignoreCase = true) || it.descricao.contains(search, ignoreCase = true))
         }
     }
 
