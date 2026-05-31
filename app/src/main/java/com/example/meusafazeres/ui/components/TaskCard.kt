@@ -60,7 +60,7 @@ fun TaskCard(
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxSize()
-                        .alpha(0.1f),
+                        .alpha(0.4f),
                     contentScale = ContentScale.Crop
                 )
             }
