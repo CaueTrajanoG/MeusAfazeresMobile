@@ -6,6 +6,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -21,7 +27,7 @@ fun RegisterScreen(navController: NavController, viewModel: AuthViewModel) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
-    var errorMessage by remember { mutableStateOf("") }
+    var localErrorMessage by remember { mutableStateOf("") }
     
     val authState by viewModel.authState
 
@@ -32,6 +38,12 @@ fun RegisterScreen(navController: NavController, viewModel: AuthViewModel) {
             }
         }
     }
+
+    val displayError = if (localErrorMessage.isNotEmpty()) localErrorMessage 
+                      else if (authState is AuthState.Error) (authState as AuthState.Error).message 
+                      else ""
+    
+    val isError = displayError.isNotEmpty()
 
     Column(
         modifier = Modifier
@@ -47,7 +59,9 @@ fun RegisterScreen(navController: NavController, viewModel: AuthViewModel) {
             value = nome,
             onValueChange = { nome = it },
             label = { Text("Nome") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            isError = isError && (nome.isEmpty() || displayError == "Digite seu nome"),
+            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) }
         )
         
         Spacer(modifier = Modifier.height(8.dp))
@@ -56,7 +70,9 @@ fun RegisterScreen(navController: NavController, viewModel: AuthViewModel) {
             value = email,
             onValueChange = { email = it },
             label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            isError = isError && (email.isEmpty() || displayError.contains("E-mail")),
+            leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) }
         )
         
         Spacer(modifier = Modifier.height(8.dp))
@@ -66,7 +82,9 @@ fun RegisterScreen(navController: NavController, viewModel: AuthViewModel) {
             onValueChange = { password = it },
             label = { Text("Senha") },
             visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            isError = isError && (password.isEmpty() || displayError.contains("Senha")),
+            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) }
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -76,20 +94,28 @@ fun RegisterScreen(navController: NavController, viewModel: AuthViewModel) {
             onValueChange = { confirmPassword = it },
             label = { Text("Confirmar Senha") },
             visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            isError = isError && (confirmPassword.isEmpty() || displayError == "Senhas não conferem"),
+            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+            supportingText = {
+                if (isError) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            Icons.Default.Warning,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = displayError,
+                            color = MaterialTheme.colorScheme.error,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
         )
-        
-        val displayError = if (errorMessage.isNotEmpty()) errorMessage 
-                          else if (authState is AuthState.Error) (authState as AuthState.Error).message 
-                          else ""
-
-        if (displayError.isNotEmpty()) {
-            Text(
-                text = displayError,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-        }
         
         Spacer(modifier = Modifier.height(16.dp))
         
@@ -98,13 +124,17 @@ fun RegisterScreen(navController: NavController, viewModel: AuthViewModel) {
         } else {
             Button(
                 onClick = { 
-                    if (nome.isEmpty()) {
-                        errorMessage = "Digite seu nome"
+                    if (nome.trim().isEmpty()) {
+                        localErrorMessage = "Digite seu nome"
+                    } else if (email.trim().isEmpty()) {
+                        localErrorMessage = "Digite seu e-mail"
+                    } else if (password.isEmpty()) {
+                        localErrorMessage = "Digite uma senha"
                     } else if (password == confirmPassword) {
-                        errorMessage = ""
+                        localErrorMessage = ""
                         viewModel.register(nome, email, password) 
                     } else {
-                        errorMessage = "Senhas não conferem"
+                        localErrorMessage = "Senhas não conferem"
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -114,7 +144,10 @@ fun RegisterScreen(navController: NavController, viewModel: AuthViewModel) {
             
             Spacer(modifier = Modifier.height(8.dp))
             
-            TextButton(onClick = { navController.navigateUp() }) {
+            TextButton(onClick = { 
+                viewModel.resetAuthState()
+                navController.navigateUp() 
+            }) {
                 Text("Já tem uma conta? Faça login")
             }
         }

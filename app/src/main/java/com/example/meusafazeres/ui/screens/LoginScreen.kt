@@ -6,6 +6,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -20,6 +25,7 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel) {
     var password by remember { mutableStateOf("") }
     
     val authState by viewModel.authState
+    val isError = authState is AuthState.Error
 
     LaunchedEffect(authState) {
         if (authState is AuthState.Success) {
@@ -43,7 +49,9 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel) {
             value = email,
             onValueChange = { email = it },
             label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            isError = isError,
+            leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) }
         )
         
         Spacer(modifier = Modifier.height(8.dp))
@@ -53,16 +61,28 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel) {
             onValueChange = { password = it },
             label = { Text("Senha") },
             visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            isError = isError,
+            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+            supportingText = {
+                if (isError) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            Icons.Default.Warning,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = (authState as AuthState.Error).message,
+                            color = MaterialTheme.colorScheme.error,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
         )
-        
-        if (authState is AuthState.Error) {
-            Text(
-                text = (authState as AuthState.Error).message,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-        }
         
         Spacer(modifier = Modifier.height(16.dp))
         
@@ -78,7 +98,10 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel) {
             
             Spacer(modifier = Modifier.height(8.dp))
             
-            TextButton(onClick = { navController.navigate("register") }) {
+            TextButton(onClick = { 
+                viewModel.resetAuthState()
+                navController.navigate("register") 
+            }) {
                 Text("Não tem uma conta? Cadastre-se")
             }
         }
