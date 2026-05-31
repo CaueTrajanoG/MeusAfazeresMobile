@@ -25,25 +25,29 @@ class TaskViewModel : ViewModel() {
 
     private val _isLoadingMore = mutableStateOf(false)
     val isLoadingMore: State<Boolean> = _isLoadingMore
+private val _allLoadedTasks = mutableStateListOf<Task>()
+private var currentPage = 1
+private var currentSearch: String? = null
+private var lastUserId: String? = null
+private var isEndReached = false
 
-    private val _allLoadedTasks = mutableStateListOf<Task>()
-    private var currentPage = 1
-    private var currentSearch: String? = null
-    private var isEndReached = false
+fun loadTasks(userId: String, search: String? = null, isRefresh: Boolean = false) {
+    val isNewSearch = search != currentSearch
+    val isNewUser = userId != lastUserId
 
-    fun loadTasks(userId: String, search: String? = null, isRefresh: Boolean = false) {
-        val isNewSearch = search != currentSearch
-        
-        if (isRefresh || isNewSearch) {
-            currentPage = 1
-            _allLoadedTasks.clear()
-            isEndReached = false
-            _taskListState.value = TaskListState.Loading
-        }
-        
-        if (isEndReached && !isRefresh && !isNewSearch) return
-        if (currentPage > 1) _isLoadingMore.value = true
-        
+    if (isRefresh || isNewSearch || isNewUser) {
+        currentPage = 1
+        _allLoadedTasks.clear()
+        isEndReached = false
+        _taskListState.value = TaskListState.Loading
+    }
+
+    currentSearch = search
+    lastUserId = userId
+
+    if (isEndReached && !isRefresh && !isNewSearch && !isNewUser) return
+    if (currentPage > 1) _isLoadingMore.value = true
+
         currentSearch = search
 
         viewModelScope.launch {
