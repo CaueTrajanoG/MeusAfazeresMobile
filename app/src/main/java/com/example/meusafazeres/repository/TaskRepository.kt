@@ -1,5 +1,6 @@
 package com.example.meusafazeres.repository
 
+import android.util.Log
 import com.example.meusafazeres.model.Priority
 import com.example.meusafazeres.model.Task
 import com.example.meusafazeres.model.TaskStatus
@@ -54,7 +55,7 @@ class TaskRepository {
 
         // Local filtering as safety and search
         return tasks.filter { 
-            !it.removido && 
+            it.donoId == userId && !it.removido && 
             (search == null || it.titulo.contains(search, ignoreCase = true) || it.descricao.contains(search, ignoreCase = true))
         }
     }
