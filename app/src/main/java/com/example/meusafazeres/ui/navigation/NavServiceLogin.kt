@@ -18,9 +18,11 @@ fun NavServiceLogin() {
     val authViewModel: AuthViewModel = koinViewModel()
     val taskViewModel: TaskViewModel = koinViewModel()
 
+    val startDestination = if (authViewModel.currentUser != null) "home_structure" else "login"
+
     NavHost(
         navController = rootNavController,
-        startDestination = "login",
+        startDestination = startDestination,
         modifier = Modifier.systemBarsPadding()
     ) {
         composable("login") {
