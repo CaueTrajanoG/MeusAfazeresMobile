@@ -22,7 +22,7 @@ import androidx.navigation.NavController
 import com.example.meusafazeres.model.Task
 import com.example.meusafazeres.ui.components.TaskCard
 import com.example.meusafazeres.ui.viewmodel.AuthViewModel
-import com.example.meusafazeres.ui.viewmodel.TaskListState
+import com.example.meusafazeres.ui.viewmodel.TaskUIState
 import com.example.meusafazeres.ui.viewmodel.TaskViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,7 +36,7 @@ fun MainScreen(
     var taskToDelete: Task? by remember { mutableStateOf<Task?>(null) }
     
     val userId = authViewModel.currentUser?.uid ?: ""
-    val taskListState by taskViewModel.taskListState
+    val taskListState by taskViewModel.uiState.collectAsState()
 
     if (taskToDelete != null) {
         AlertDialog(
@@ -81,17 +81,17 @@ fun MainScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        val userData by authViewModel.currentUserData
+        val userData by authViewModel.currentUserData.collectAsState()
         val currentUser = authViewModel.currentUser
         
-            if (userData != null || currentUser != null) {
-                Text(
-                    text = "Olá, ${userData?.nome ?: currentUser?.email ?: "Usuário"}!",
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                    color = Color.Black // Keep greeting black for legibility
-                )
-            }
+        if (userData != null || currentUser != null) {
+            Text(
+                text = "Olá, ${userData?.nome ?: currentUser?.email ?: "Usuário"}!",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                color = Color.Black // Keep greeting black for legibility
+            )
+        }
 
         // Search Bar
         OutlinedTextField(
@@ -119,19 +119,19 @@ fun MainScreen(
         )
 
         when (taskListState) {
-            is TaskListState.Loading -> {
+            is TaskUIState.Loading -> {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
             }
-            is TaskListState.Error -> {
+            is TaskUIState.Error -> {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(text = (taskListState as TaskListState.Error).message, color = Color.Red)
+                    Text(text = (taskListState as TaskUIState.Error).message, color = Color.Red)
                 }
             }
-            is TaskListState.Success -> {
-                val tasks = (taskListState as TaskListState.Success).tasks
-                val isLoadingMore by taskViewModel.isLoadingMore
+            is TaskUIState.Success -> {
+                val tasks = (taskListState as TaskUIState.Success).tasks
+                val isLoadingMore by taskViewModel.isLoadingMore.collectAsState()
                 
                 if (tasks.isEmpty()) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

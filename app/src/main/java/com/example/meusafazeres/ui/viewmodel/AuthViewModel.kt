@@ -1,13 +1,13 @@
 package com.example.meusafazeres.ui.viewmodel
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.meusafazeres.model.User
 import com.example.meusafazeres.repository.AuthRepository
 import com.example.meusafazeres.repository.UserRepository
 import com.google.firebase.auth.FirebaseUser
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import com.google.firebase.auth.FirebaseAuthActionCodeException
 import com.google.firebase.auth.FirebaseAuthEmailException
@@ -22,22 +22,22 @@ import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.FirebaseAuthWebException
 import com.google.firebase.FirebaseNetworkException
 
-sealed class AuthState {
-    object Idle : AuthState()
-    object Loading : AuthState()
-    data class Success(val user: FirebaseUser) : AuthState()
-    data class Error(val message: String) : AuthState()
+sealed class AuthUIState {
+    object Idle : AuthUIState()
+    object Loading : AuthUIState()
+    data class Success(val user: FirebaseUser) : AuthUIState()
+    data class Error(val message: String) : AuthUIState()
 }
 
 class AuthViewModel : ViewModel() {
     private val repository = AuthRepository()
     private val userRepository = UserRepository()
     
-    private val _authState = mutableStateOf<AuthState>(AuthState.Idle)
-    val authState: State<AuthState> = _authState
+    private val _uiState = MutableStateFlow<AuthUIState>(AuthUIState.Idle)
+    val uiState: StateFlow<AuthUIState> = _uiState
 
-    private val _currentUserData = mutableStateOf<User?>(null)
-    val currentUserData: State<User?> = _currentUserData
+    private val _currentUserData = MutableStateFlow<User?>(null)
+    val currentUserData: StateFlow<User?> = _currentUserData
 
     val currentUser: FirebaseUser? get() = repository.getCurrentUser()
 
@@ -56,7 +56,7 @@ class AuthViewModel : ViewModel() {
 
     fun login(email: String, pass: String) {
         viewModelScope.launch {
-            _authState.value = AuthState.Loading
+            _uiState.value = AuthUIState.Loading
             try {
                 val fbUser = repository.login(email.trim(), pass)
                 if (fbUser != null) {
@@ -66,42 +66,42 @@ class AuthViewModel : ViewModel() {
                     } catch (e: Exception) {
                         _currentUserData.value = null
                     }
-                    _authState.value = AuthState.Success(fbUser)
+                    _uiState.value = AuthUIState.Success(fbUser)
                 } else {
-                    _authState.value = AuthState.Error("Falha ao realizar login")
+                    _uiState.value = AuthUIState.Error("Falha ao realizar login")
                 }
             } catch (e: Exception) {
-                _authState.value = AuthState.Error(mapError(e))
+                _uiState.value = AuthUIState.Error(mapError(e))
             }
         }
     }
 
     fun register(nome: String, email: String, pass: String) {
         viewModelScope.launch {
-            _authState.value = AuthState.Loading
+            _uiState.value = AuthUIState.Loading
             try {
                 val fbUser = repository.register(email.trim(), pass)
                 if (fbUser != null) {
                     val newUser = User(id = fbUser.uid, nome = nome.trim(), email = email.trim())
                     userRepository.createUser(newUser)
                     _currentUserData.value = newUser
-                    _authState.value = AuthState.Success(fbUser)
+                    _uiState.value = AuthUIState.Success(fbUser)
                 } else {
-                    _authState.value = AuthState.Error("Falha ao realizar cadastro")
+                    _uiState.value = AuthUIState.Error("Falha ao realizar cadastro")
                 }
             } catch (e: Exception) {
-                _authState.value = AuthState.Error(mapError(e))
+                _uiState.value = AuthUIState.Error(mapError(e))
             }
         }
     }
 
     fun logout() {
         repository.logout()
-        _authState.value = AuthState.Idle
+        _uiState.value = AuthUIState.Idle
     }
 
     fun resetAuthState() {
-        _authState.value = AuthState.Idle
+        _uiState.value = AuthUIState.Idle
     }
 
     private fun mapError(e: Exception): String {

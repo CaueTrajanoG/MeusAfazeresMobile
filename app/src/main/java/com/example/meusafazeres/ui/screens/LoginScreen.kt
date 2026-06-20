@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.meusafazeres.ui.components.AppLogo
-import com.example.meusafazeres.ui.viewmodel.AuthState
+import com.example.meusafazeres.ui.viewmodel.AuthUIState
 import com.example.meusafazeres.ui.viewmodel.AuthViewModel
 
 @Composable
@@ -24,11 +24,11 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     
-    val authState by viewModel.authState
-    val isError = authState is AuthState.Error
+    val authState by viewModel.uiState.collectAsState()
+    val isError = authState is AuthUIState.Error
 
     LaunchedEffect(authState) {
-        if (authState is AuthState.Success) {
+        if (authState is AuthUIState.Success) {
             navController.navigate("home_structure") {
                 popUpTo("login") { inclusive = true }
             }
@@ -75,7 +75,7 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel) {
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = (authState as AuthState.Error).message,
+                            text = (authState as AuthUIState.Error).message,
                             color = MaterialTheme.colorScheme.error,
                             fontWeight = FontWeight.Bold
                         )
@@ -86,7 +86,7 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel) {
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        if (authState is AuthState.Loading) {
+        if (authState is AuthUIState.Loading) {
             CircularProgressIndicator()
         } else {
             Button(

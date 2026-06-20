@@ -1,54 +1,52 @@
 package com.example.meusafazeres.ui.viewmodel
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.meusafazeres.model.Task
 import com.example.meusafazeres.model.TaskStatus
 import com.example.meusafazeres.repository.TaskRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-sealed class TaskListState {
-    object Idle : TaskListState()
-    object Loading : TaskListState()
-    data class Success(val tasks: List<Task>) : TaskListState()
-    data class Error(val message: String) : TaskListState()
+sealed class TaskUIState {
+    object Idle : TaskUIState()
+    object Loading : TaskUIState()
+    data class Success(val tasks: List<Task>) : TaskUIState()
+    data class Error(val message: String) : TaskUIState()
 }
 
 class TaskViewModel : ViewModel() {
     private val repository = TaskRepository()
     
-    private val _taskListState = mutableStateOf<TaskListState>(TaskListState.Idle)
-    val taskListState: State<TaskListState> = _taskListState
+    private val _uiState = MutableStateFlow<TaskUIState>(TaskUIState.Idle)
+    val uiState: StateFlow<TaskUIState> = _uiState
 
-    private val _isLoadingMore = mutableStateOf(false)
-    val isLoadingMore: State<Boolean> = _isLoadingMore
-private val _allLoadedTasks = mutableStateListOf<Task>()
-private var currentPage = 1
-private var currentSearch: String? = null
-private var lastUserId: String? = null
-private var isEndReached = false
+    private val _isLoadingMore = MutableStateFlow(false)
+    val isLoadingMore: StateFlow<Boolean> = _isLoadingMore
 
-fun loadTasks(userId: String, search: String? = null, isRefresh: Boolean = false) {
-    val isNewSearch = search != currentSearch
-    val isNewUser = userId != lastUserId
+    private val _allLoadedTasks = mutableListOf<Task>()
+    private var currentPage = 1
+    private var currentSearch: String? = null
+    private var lastUserId: String? = null
+    private var isEndReached = false
 
-    if (isRefresh || isNewSearch || isNewUser) {
-        currentPage = 1
-        _allLoadedTasks.clear()
-        isEndReached = false
-        _taskListState.value = TaskListState.Loading
-    }
+    fun loadTasks(userId: String, search: String? = null, isRefresh: Boolean = false) {
+        val isNewSearch = search != currentSearch
+        val isNewUser = userId != lastUserId
 
-    currentSearch = search
-    lastUserId = userId
-
-    if (isEndReached && !isRefresh && !isNewSearch && !isNewUser) return
-    if (currentPage > 1) _isLoadingMore.value = true
+        if (isRefresh || isNewSearch || isNewUser) {
+            currentPage = 1
+            _allLoadedTasks.clear()
+            isEndReached = false
+            _uiState.value = TaskUIState.Loading
+        }
 
         currentSearch = search
+        lastUserId = userId
+
+        if (isEndReached && !isRefresh && !isNewSearch && !isNewUser) return
+        if (currentPage > 1) _isLoadingMore.value = true
 
         viewModelScope.launch {
             try {
@@ -61,15 +59,15 @@ fun loadTasks(userId: String, search: String? = null, isRefresh: Boolean = false
 
                 if (newTasks.isEmpty()) {
                     isEndReached = true
-                    if (currentPage == 1) _taskListState.value = TaskListState.Success(emptyList())
+                    if (currentPage == 1) _uiState.value = TaskUIState.Success(emptyList())
                 } else {
                     _allLoadedTasks.addAll(nonDuplicateNewTasks)
-                    _taskListState.value = TaskListState.Success(_allLoadedTasks.toList())
+                    _uiState.value = TaskUIState.Success(_allLoadedTasks.toList())
                     currentPage++
                 }
             } catch (e: Exception) {
                 if (currentPage == 1) {
-                    _taskListState.value = TaskListState.Error(e.message ?: "Erro ao carregar tarefas")
+                    _uiState.value = TaskUIState.Error(e.message ?: "Erro ao carregar tarefas")
                 }
             } finally {
                 _isLoadingMore.value = false
@@ -92,7 +90,7 @@ fun loadTasks(userId: String, search: String? = null, isRefresh: Boolean = false
                 val index = _allLoadedTasks.indexOfFirst { it.id == task.id }
                 if (index != -1) {
                     _allLoadedTasks[index] = updatedTask
-                    _taskListState.value = TaskListState.Success(_allLoadedTasks.toList())
+                    _uiState.value = TaskUIState.Success(_allLoadedTasks.toList())
                 }
             } catch (e: Exception) {
                 // Handle error
@@ -105,7 +103,7 @@ fun loadTasks(userId: String, search: String? = null, isRefresh: Boolean = false
             try {
                 repository.deleteTask(taskId)
                 _allLoadedTasks.removeAll { it.id == taskId }
-                _taskListState.value = TaskListState.Success(_allLoadedTasks.toList())
+                _uiState.value = TaskUIState.Success(_allLoadedTasks.toList())
             } catch (e: Exception) {
                 // Handle error
             }
@@ -117,7 +115,7 @@ fun loadTasks(userId: String, search: String? = null, isRefresh: Boolean = false
             try {
                 val createdTask = repository.createTask(task.copy(donoId = userId))
                 _allLoadedTasks.add(0, createdTask)
-                _taskListState.value = TaskListState.Success(_allLoadedTasks.toList())
+                _uiState.value = TaskUIState.Success(_allLoadedTasks.toList())
             } catch (e: Exception) {
                 // Handle error
             }
