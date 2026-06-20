@@ -3,7 +3,7 @@ package com.example.meusafazeres.ui.navigation
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
+import org.koin.androidx.compose.koinViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -15,8 +15,8 @@ import com.example.meusafazeres.ui.viewmodel.TaskViewModel
 @Composable
 fun NavServiceLogin() {
     val rootNavController = rememberNavController()
-    val authViewModel: AuthViewModel = viewModel()
-    val taskViewModel: TaskViewModel = viewModel()
+    val authViewModel: AuthViewModel = koinViewModel()
+    val taskViewModel: TaskViewModel = koinViewModel()
 
     NavHost(
         navController = rootNavController,
