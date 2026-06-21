@@ -39,6 +39,8 @@ import com.example.meusafazeres.ui.viewmodel.TaskViewModel
 import androidx.compose.ui.platform.LocalContext
 import android.widget.Toast
 
+import com.example.meusafazeres.ui.theme.Satisfy
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
@@ -71,8 +73,11 @@ fun MainScreen(
             title = {
                 Text(
                     text = "Filtrar Afazeres",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.primary
+                    fontFamily = Satisfy,
+                    fontSize = 32.sp,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
                 )
             },
             text = {
@@ -189,27 +194,35 @@ fun MainScreen(
                 }
             },
             confirmButton = {
-                TextButton(
+                Button(
                     onClick = {
                         statusFilters = tempStatusFilters
                         priorityFilters = tempPriorityFilters
                         showFilterDialog = false
-                    }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = Color.White
+                    )
                 ) {
-                    Text("Aplicar")
+                    Text("Aplicar", fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
-                TextButton(
+                OutlinedButton(
                     onClick = {
                         tempStatusFilters = emptySet()
                         tempPriorityFilters = emptySet()
                         statusFilters = emptySet()
                         priorityFilters = emptySet()
                         showFilterDialog = false
-                    }
+                    },
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.primary
+                    )
                 ) {
-                    Text("Limpar Filtros")
+                    Text("Limpar Filtros", fontWeight = FontWeight.Bold)
                 }
             }
         )
