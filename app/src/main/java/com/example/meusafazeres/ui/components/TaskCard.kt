@@ -78,7 +78,7 @@ fun TaskCard(
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.End
                 ) {
                     Text(
                         text = if (isDone) "Feito" else "Pendente",
@@ -86,6 +86,7 @@ fun TaskCard(
                         color = if (isDone) Color.Gray else Color.Black,
                         fontWeight = if (isDone) FontWeight.Normal else FontWeight.Bold
                     )
+                    Spacer(modifier = Modifier.width(8.dp))
                     Switch(
                         checked = isDone,
                         onCheckedChange = { 
@@ -139,7 +140,12 @@ fun TaskCard(
                             )
                         }
                         Text(
-                            text = "Criado em: ${dateFormat.format(task.dataCriacao)}",
+                            text = buildAnnotatedString {
+                                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                    append("Criado em: ")
+                                }
+                                append(dateFormat.format(task.dataCriacao))
+                            },
                             style = MaterialTheme.typography.labelSmall,
                             color = Color.DarkGray
                         )
