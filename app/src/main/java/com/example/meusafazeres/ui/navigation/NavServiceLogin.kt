@@ -18,7 +18,7 @@ fun NavServiceLogin() {
     val authViewModel: AuthViewModel = koinViewModel()
     val taskViewModel: TaskViewModel = koinViewModel()
 
-    val startDestination = if (authViewModel.currentUser != null) "home_structure" else "login"
+    val startDestination = "home_structure"
 
     NavHost(
         navController = rootNavController,
@@ -45,9 +45,9 @@ fun NavServiceLogin() {
                 taskViewModel = taskViewModel,
                 onLogout = {
                     authViewModel.logout()
-                    rootNavController.navigate("login") {
-                        popUpTo("home_structure") { inclusive = true }
-                    }
+                },
+                onNavigateToLogin = {
+                    rootNavController.navigate("login")
                 }
             )
         }

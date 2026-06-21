@@ -71,9 +71,7 @@ fun MainScreen(
     }
 
     LaunchedEffect(userId) {
-        if (userId.isNotEmpty()) {
-            taskViewModel.loadTasks(userId)
-        }
+        taskViewModel.loadTasks(userId)
     }
 
     Column(
@@ -84,9 +82,9 @@ fun MainScreen(
         val userData by authViewModel.currentUserData.collectAsState()
         val currentUser = authViewModel.currentUser
         
-        if (userData != null || currentUser != null) {
+        if (currentUser != null) {
             Text(
-                text = "Olá, ${userData?.nome ?: currentUser?.email ?: "Usuário"}!",
+                text = "Olá, ${userData?.nome ?: currentUser.email ?: "Usuário"}!",
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                 color = Color.Black // Keep greeting black for legibility

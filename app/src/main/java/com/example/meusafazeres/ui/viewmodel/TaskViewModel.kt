@@ -58,9 +58,14 @@ class TaskViewModel(
                     _allLoadedTasks.none { it.id == newTask.id }
                 }
 
-                if (newTasks.isEmpty()) {
+                if (newTasks.isEmpty() || userId.isBlank()) {
                     isEndReached = true
-                    if (currentPage == 1) _uiState.value = TaskUIState.Success(emptyList())
+                    if (newTasks.isEmpty()) {
+                        if (currentPage == 1) _uiState.value = TaskUIState.Success(emptyList())
+                    } else {
+                        _allLoadedTasks.addAll(nonDuplicateNewTasks)
+                        _uiState.value = TaskUIState.Success(_allLoadedTasks.toList())
+                    }
                 } else {
                     _allLoadedTasks.addAll(nonDuplicateNewTasks)
                     _uiState.value = TaskUIState.Success(_allLoadedTasks.toList())
@@ -102,7 +107,7 @@ class TaskViewModel(
     fun deleteTask(taskId: String, userId: String) {
         viewModelScope.launch {
             try {
-                repository.deleteTask(taskId)
+                repository.deleteTask(taskId, userId)
                 _allLoadedTasks.removeAll { it.id == taskId }
                 _uiState.value = TaskUIState.Success(_allLoadedTasks.toList())
             } catch (e: Exception) {

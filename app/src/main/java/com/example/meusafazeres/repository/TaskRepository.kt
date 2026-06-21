@@ -1,6 +1,9 @@
 package com.example.meusafazeres.repository
 
 import android.util.Log
+import com.example.meusafazeres.data.local.TaskDao
+import com.example.meusafazeres.data.local.toDomain
+import com.example.meusafazeres.data.local.toEntity
 import com.example.meusafazeres.model.Priority
 import com.example.meusafazeres.model.Task
 import com.example.meusafazeres.model.TaskStatus
@@ -9,13 +12,21 @@ import com.example.meusafazeres.network.firestore.*
 import java.text.SimpleDateFormat
 import java.util.*
 
-class TaskRepository {
+class TaskRepository(private val taskDao: TaskDao) {
     private val api = RetrofitClient.instance
     private val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).apply {
         timeZone = TimeZone.getTimeZone("UTC")
     }
 
     suspend fun getTasks(userId: String, search: String? = null, page: Int = 1): List<Task> {
+        if (userId.isBlank()) {
+            val localEntities = taskDao.getAllLocalTasks()
+            val domainTasks = localEntities.map { it.toDomain() }
+            return domainTasks.filter {
+                search == null || it.titulo.contains(search, ignoreCase = true) || it.descricao.contains(search, ignoreCase = true)
+            }
+        }
+
         val pageSize = 10
         val offset = (page - 1) * pageSize
 
@@ -61,6 +72,13 @@ class TaskRepository {
     }
 
     suspend fun createTask(task: Task): Task {
+        if (task.donoId.isNullOrBlank()) {
+            val localId = task.id ?: UUID.randomUUID().toString()
+            val localTask = task.copy(id = localId)
+            taskDao.insertLocalTask(localTask.toEntity(localId))
+            return localTask
+        }
+
         val id = UUID.randomUUID().toString()
         val doc = FirestoreDocument(fields = mapTaskToFirestore(task))
         val response = api.createTask(id, doc)
@@ -68,6 +86,11 @@ class TaskRepository {
     }
 
     suspend fun updateTask(task: Task): Task {
+        if (task.donoId.isNullOrBlank()) {
+            taskDao.insertLocalTask(task.toEntity())
+            return task
+        }
+
         val doc = FirestoreDocument(fields = mapTaskToFirestore(task))
         // Identify which fields to update
         val updateMask = listOf("titulo", "descricao", "prioridade", "status", "removido")
@@ -75,7 +98,12 @@ class TaskRepository {
         return mapFirestoreToTask(response)
     }
 
-    suspend fun deleteTask(id: String) {
+    suspend fun deleteTask(id: String, userId: String) {
+        if (userId.isBlank()) {
+            taskDao.logicalDeleteLocalTask(id)
+            return
+        }
+
         // Logical deletion: Fetch the task (or just create a stub with the flag)
         // Since we are using REST PATCH, we can just send the field we want to change.
         val doc = FirestoreDocument(fields = TaskFields(

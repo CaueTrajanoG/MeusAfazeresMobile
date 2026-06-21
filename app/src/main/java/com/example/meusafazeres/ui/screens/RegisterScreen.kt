@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.Lock
@@ -45,110 +46,127 @@ fun RegisterScreen(navController: NavController, viewModel: AuthViewModel) {
     
     val isError = displayError.isNotEmpty()
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
     ) {
-        AppLogo()
+        IconButton(
+            onClick = { navController.navigateUp() },
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = "Voltar"
+            )
+        }
 
-        OutlinedTextField(
-            value = nome,
-            onValueChange = { nome = it },
-            label = { Text("Nome") },
-            modifier = Modifier.fillMaxWidth(),
-            isError = isError && (nome.isEmpty() || displayError == "Digite seu nome"),
-            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) }
-        )
-        
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth(),
-            isError = isError && (email.isEmpty() || displayError.contains("E-mail")),
-            leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) }
-        )
-        
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Senha") },
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth(),
-            isError = isError && (password.isEmpty() || displayError.contains("Senha")),
-            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) }
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            AppLogo()
 
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        OutlinedTextField(
-            value = confirmPassword,
-            onValueChange = { confirmPassword = it },
-            label = { Text("Confirmar Senha") },
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth(),
-            isError = isError && (confirmPassword.isEmpty() || displayError == "Senhas não conferem"),
-            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
-            supportingText = {
-                if (isError) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            Icons.Default.Warning,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = displayError,
-                            color = MaterialTheme.colorScheme.error,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-            }
-        )
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        if (authState is AuthUIState.Loading) {
-            CircularProgressIndicator()
-        } else {
-            Button(
-                onClick = { 
-                    if (nome.trim().isEmpty()) {
-                        localErrorMessage = "Digite seu nome"
-                    } else if (email.trim().isEmpty()) {
-                        localErrorMessage = "Digite seu e-mail"
-                    } else if (password.isEmpty()) {
-                        localErrorMessage = "Digite uma senha"
-                    } else if (password == confirmPassword) {
-                        localErrorMessage = ""
-                        viewModel.register(nome, email, password) 
-                    } else {
-                        localErrorMessage = "Senhas não conferem"
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Cadastrar")
-            }
+            OutlinedTextField(
+                value = nome,
+                onValueChange = { nome = it },
+                label = { Text("Nome") },
+                modifier = Modifier.fillMaxWidth(),
+                isError = isError && (nome.isEmpty() || displayError == "Digite seu nome"),
+                leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) }
+            )
             
             Spacer(modifier = Modifier.height(8.dp))
             
-            TextButton(onClick = { 
-                viewModel.resetAuthState()
-                navController.navigateUp() 
-            }) {
-                Text("Já tem uma conta? Faça login")
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Email") },
+                modifier = Modifier.fillMaxWidth(),
+                isError = isError && (email.isEmpty() || displayError.contains("E-mail")),
+                leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) }
+            )
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("Senha") },
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth(),
+                isError = isError && (password.isEmpty() || displayError.contains("Senha")),
+                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) }
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            OutlinedTextField(
+                value = confirmPassword,
+                onValueChange = { confirmPassword = it },
+                label = { Text("Confirmar Senha") },
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth(),
+                isError = isError && (confirmPassword.isEmpty() || displayError == "Senhas não conferem"),
+                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+                supportingText = {
+                    if (isError) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                Icons.Default.Warning,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = displayError,
+                                color = MaterialTheme.colorScheme.error,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            if (authState is AuthUIState.Loading) {
+                CircularProgressIndicator()
+            } else {
+                Button(
+                    onClick = { 
+                        if (nome.trim().isEmpty()) {
+                            localErrorMessage = "Digite seu nome"
+                        } else if (email.trim().isEmpty()) {
+                            localErrorMessage = "Digite seu e-mail"
+                        } else if (password.isEmpty()) {
+                            localErrorMessage = "Digite uma senha"
+                        } else if (password == confirmPassword) {
+                            localErrorMessage = ""
+                            viewModel.register(nome, email, password) 
+                        } else {
+                            localErrorMessage = "Senhas não conferem"
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Cadastrar")
+                }
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                TextButton(onClick = { 
+                    viewModel.resetAuthState()
+                    navController.navigateUp() 
+                }) {
+                    Text("Já tem uma conta? Faça login")
+                }
             }
         }
     }

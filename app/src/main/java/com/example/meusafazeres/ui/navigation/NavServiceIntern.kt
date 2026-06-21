@@ -3,9 +3,10 @@ package com.example.meusafazeres.ui.navigation
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -13,7 +14,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.meusafazeres.model.Task
 import com.example.meusafazeres.ui.model.NavItem
 import com.example.meusafazeres.ui.screens.CadastroTaskScreen
 import com.example.meusafazeres.ui.screens.MainScreen
@@ -25,7 +25,8 @@ import com.example.meusafazeres.ui.viewmodel.TaskViewModel
 fun NavServiceIntern(
     authViewModel: AuthViewModel,
     taskViewModel: TaskViewModel,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onNavigateToLogin: () -> Unit
 ) {
     val navController = rememberNavController()
     var selectedIndex by remember { mutableIntStateOf(0) }
@@ -59,10 +60,15 @@ fun NavServiceIntern(
         )
     }
 
+    val isUserLoggedIn = authViewModel.currentUser != null
     val navItemList = listOf(
-        NavItem("Afazeres", Icons.Default.List, "main"),
+        NavItem("Afazeres", Icons.AutoMirrored.Filled.List, "main"),
         NavItem("Novo", Icons.Default.Add, "cadastro_task"),
-        NavItem("Sair", Icons.Default.ExitToApp, "sair")
+        if (isUserLoggedIn) {
+            NavItem("Sair", Icons.AutoMirrored.Filled.ExitToApp, "sair")
+        } else {
+            NavItem("Login", Icons.Default.Person, "login")
+        }
     )
 
     Scaffold(
@@ -92,6 +98,8 @@ fun NavServiceIntern(
                             selectedIndex = index
                             if (navItem.rota == "sair") {
                                 mostrarDialog = true
+                            } else if (navItem.rota == "login") {
+                                onNavigateToLogin()
                             } else {
                                 navController.navigate(navItem.rota) {
                                     // Evita acumular instâncias da mesma tela na pilha

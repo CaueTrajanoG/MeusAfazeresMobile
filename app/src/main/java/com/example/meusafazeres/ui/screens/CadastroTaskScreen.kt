@@ -101,7 +101,7 @@ fun CadastroTaskScreen(
                         selected = (prioridade == p),
                         onClick = { prioridade = p }
                     )
-                    Text(text = p.name.lowercase().capitalize())
+                    Text(text = p.name.lowercase().replaceFirstChar { it.uppercase() })
                 }
             }
         }
