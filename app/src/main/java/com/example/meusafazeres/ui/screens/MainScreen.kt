@@ -321,7 +321,7 @@ fun MainScreen(
                         tempPriorityFilters = priorityFilters
                         showFilterDialog = true
                     },
-                    modifier = Modifier.size(48.dp),
+                    modifier = Modifier.size(56.dp),
                     shape = RoundedCornerShape(8.dp),
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                     colors = IconButtonDefaults.outlinedIconButtonColors(
@@ -346,7 +346,7 @@ fun MainScreen(
                     },
                     modifier = Modifier
                         .weight(1f)
-                        .height(48.dp)
+                        .height(56.dp)
                         .onFocusChanged { isSearchFocused = it.isFocused },
                     placeholder = { 
                         Text(
@@ -358,6 +358,8 @@ fun MainScreen(
                     singleLine = true,
                     shape = RoundedCornerShape(8.dp),
                     colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = MaterialTheme.colorScheme.primary,
+                        unfocusedTextColor = MaterialTheme.colorScheme.primary,
                         unfocusedContainerColor = Color.White,
                         focusedContainerColor = Color.White,
                         unfocusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -377,7 +379,7 @@ fun MainScreen(
                         }
                     },
                     modifier = Modifier
-                        .size(48.dp)
+                        .size(56.dp)
                         .background(MaterialTheme.colorScheme.primary, shape = CircleShape)
                 ) {
                     Icon(
