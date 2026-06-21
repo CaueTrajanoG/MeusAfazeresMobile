@@ -322,7 +322,14 @@ fun MainScreen(
                     },
                     modifier = Modifier.size(56.dp),
                     shape = RoundedCornerShape(8.dp),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                    border = BorderStroke(
+                        width = 1.dp,
+                        color = if (statusFilters.isNotEmpty() || priorityFilters.isNotEmpty()) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            Color.Transparent
+                        }
+                    ),
                     colors = IconButtonDefaults.outlinedIconButtonColors(
                         containerColor = Color.White,
                         contentColor = MaterialTheme.colorScheme.primary
@@ -361,7 +368,7 @@ fun MainScreen(
                         unfocusedTextColor = MaterialTheme.colorScheme.primary,
                         unfocusedContainerColor = Color.White,
                         focusedContainerColor = Color.White,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = Color.Transparent,
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
                         unfocusedLabelColor = Color.Transparent
                     )
@@ -377,15 +384,21 @@ fun MainScreen(
                             taskViewModel.loadTasks(userId, null)
                         }
                     },
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(MaterialTheme.colorScheme.primary, shape = CircleShape)
+                    modifier = Modifier.size(48.dp)
                 ) {
-                    Icon(
-                        imageVector = if (searchText.isNotEmpty()) Icons.Default.Close else Icons.Default.Search,
-                        contentDescription = "Buscar",
-                        tint = Color.White
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .background(MaterialTheme.colorScheme.primary, shape = CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = if (searchText.isNotEmpty()) Icons.Default.Close else Icons.Default.Search,
+                            contentDescription = "Buscar",
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                 }
             }
         }
