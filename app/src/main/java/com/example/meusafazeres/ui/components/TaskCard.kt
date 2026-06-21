@@ -13,6 +13,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -125,7 +128,12 @@ fun TaskCard(
                     Column {
                         task.dueDate?.let {
                             Text(
-                                text = "Data: ${dateFormat.format(it)}",
+                                text = buildAnnotatedString {
+                                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                        append("Data do afazer: ")
+                                    }
+                                    append(dateFormat.format(it))
+                                },
                                 style = MaterialTheme.typography.labelSmall,
                                 color = Color.DarkGray
                             )
