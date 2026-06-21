@@ -14,6 +14,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.example.meusafazeres.ui.model.NavItem
 import com.example.meusafazeres.ui.screens.CadastroTaskScreen
 import com.example.meusafazeres.ui.screens.MainScreen
@@ -124,8 +126,16 @@ fun NavServiceIntern(
             composable("main") {
                 MainScreen(navController, authViewModel, taskViewModel)
             }
-            composable("cadastro_task") {
-                CadastroTaskScreen(navController, authViewModel, taskViewModel)
+            composable(
+                route = "cadastro_task?taskId={taskId}",
+                arguments = listOf(navArgument("taskId") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                })
+            ) { backStackEntry ->
+                val taskId = backStackEntry.arguments?.getString("taskId")
+                CadastroTaskScreen(navController, authViewModel, taskViewModel, taskId)
             }
         }
     }

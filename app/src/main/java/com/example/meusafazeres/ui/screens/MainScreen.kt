@@ -168,6 +168,9 @@ fun MainScreen(
                                 },
                                 onDelete = {
                                     taskToDelete = task
+                                },
+                                onEdit = {
+                                    navController.navigate("cadastro_task?taskId=${task.id}")
                                 }
                             )
                         }

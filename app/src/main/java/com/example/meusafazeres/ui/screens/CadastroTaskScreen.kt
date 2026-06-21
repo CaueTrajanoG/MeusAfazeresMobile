@@ -28,12 +28,25 @@ import java.util.*
 fun CadastroTaskScreen(
     navController: NavController,
     authViewModel: AuthViewModel,
-    taskViewModel: TaskViewModel
+    taskViewModel: TaskViewModel,
+    taskId: String? = null
 ) {
     var titulo by remember { mutableStateOf("") }
     var descricao by remember { mutableStateOf("") }
     var prioridade by remember { mutableStateOf(Priority.NORMAL) }
     var dueDate by remember { mutableStateOf<Date?>(null) }
+
+    LaunchedEffect(taskId) {
+        if (taskId != null) {
+            val task = taskViewModel.getTaskById(taskId)
+            if (task != null) {
+                titulo = task.titulo
+                descricao = task.descricao
+                prioridade = task.prioridade
+                dueDate = task.dueDate
+            }
+        }
+    }
     
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
@@ -60,7 +73,7 @@ fun CadastroTaskScreen(
         verticalArrangement = Arrangement.Top
     ) {
         Text(
-            text = "Novo Afazer",
+            text = if (taskId != null) "Editar Afazer" else "Novo Afazer",
             style = MaterialTheme.typography.headlineLarge,
             fontSize = 48.sp,
             color = MaterialTheme.colorScheme.primary,
@@ -133,14 +146,27 @@ fun CadastroTaskScreen(
         Button(
             onClick = {
                 if (titulo.isNotEmpty()) {
-                    val userId = authViewModel.currentUser?.uid ?: ""
-                    val newTask = Task(
-                        titulo = titulo,
-                        descricao = descricao,
-                        prioridade = prioridade,
-                        dueDate = dueDate
-                    )
-                    taskViewModel.addTask(newTask, userId)
+                    if (taskId != null) {
+                        val existingTask = taskViewModel.getTaskById(taskId)
+                        if (existingTask != null) {
+                            val updatedTask = existingTask.copy(
+                                titulo = titulo,
+                                descricao = descricao,
+                                prioridade = prioridade,
+                                dueDate = dueDate
+                            )
+                            taskViewModel.updateTask(updatedTask)
+                        }
+                    } else {
+                        val userId = authViewModel.currentUser?.uid ?: ""
+                        val newTask = Task(
+                            titulo = titulo,
+                            descricao = descricao,
+                            prioridade = prioridade,
+                            dueDate = dueDate
+                        )
+                        taskViewModel.addTask(newTask, userId)
+                    }
                     // Navigate back to Afazeres tab
                     navController.navigate("main") {
                         popUpTo("main") { inclusive = true }

@@ -127,4 +127,23 @@ class TaskViewModel(
             }
         }
     }
+
+    fun getTaskById(taskId: String): Task? {
+        return _allLoadedTasks.find { it.id == taskId }
+    }
+
+    fun updateTask(task: Task) {
+        viewModelScope.launch {
+            try {
+                val updatedTask = repository.updateTask(task)
+                val index = _allLoadedTasks.indexOfFirst { it.id == task.id }
+                if (index != -1) {
+                    _allLoadedTasks[index] = updatedTask
+                    _uiState.value = TaskUIState.Success(_allLoadedTasks.toList())
+                }
+            } catch (e: Exception) {
+                // Handle error
+            }
+        }
+    }
 }
