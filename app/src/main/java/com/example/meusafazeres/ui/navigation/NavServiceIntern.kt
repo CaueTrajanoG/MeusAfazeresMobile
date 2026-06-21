@@ -48,7 +48,6 @@ fun NavServiceIntern(
             onDismissRequest = { mostrarDialog = false },
             containerColor = Color.White,
             tonalElevation = 0.dp,
-            modifier = Modifier.border(1.dp, MaterialTheme.colorScheme.primary, shape = AlertDialogDefaults.shape),
             title = { 
                 Text(
                     text = "Confirmar Saída",
