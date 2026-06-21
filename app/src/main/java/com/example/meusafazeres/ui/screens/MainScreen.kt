@@ -68,7 +68,6 @@ fun MainScreen(
             onDismissRequest = { showFilterDialog = false },
             containerColor = Color.White,
             tonalElevation = 0.dp,
-            modifier = Modifier.border(1.dp, MaterialTheme.colorScheme.primary, shape = AlertDialogDefaults.shape),
             title = {
                 Text(
                     text = "Filtrar Afazeres",
@@ -379,7 +378,7 @@ fun MainScreen(
                         }
                     },
                     modifier = Modifier
-                        .size(56.dp)
+                        .size(40.dp)
                         .background(MaterialTheme.colorScheme.primary, shape = CircleShape)
                 ) {
                     Icon(
