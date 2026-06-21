@@ -1,5 +1,6 @@
 package com.example.meusafazeres.ui.navigation
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -7,13 +8,18 @@ import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.example.meusafazeres.ui.model.NavItem
@@ -31,12 +37,18 @@ fun NavServiceIntern(
     onNavigateToLogin: () -> Unit
 ) {
     val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
     var selectedIndex by remember { mutableIntStateOf(0) }
+    var isHeaderExpanded by remember { mutableStateOf(true) }
     var mostrarDialog by remember { mutableStateOf(false) }
 
     if (mostrarDialog) {
         AlertDialog(
             onDismissRequest = { mostrarDialog = false },
+            containerColor = Color.White,
+            tonalElevation = 0.dp,
+            modifier = Modifier.border(1.dp, MaterialTheme.colorScheme.primary, shape = AlertDialogDefaults.shape),
             title = { 
                 Text(
                     text = "Confirmar Saída",
@@ -76,21 +88,6 @@ fun NavServiceIntern(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = "Meus Afazeres",
-                        style = MaterialTheme.typography.headlineLarge,
-                        fontSize = 36.sp,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                )
-            )
-        },
         bottomBar = {
             NavigationBar {
                 navItemList.forEachIndexed { index, navItem ->
@@ -124,7 +121,13 @@ fun NavServiceIntern(
             modifier = Modifier.padding(innerPadding)
         ) {
             composable("main") {
-                MainScreen(navController, authViewModel, taskViewModel)
+                MainScreen(
+                    navController = navController,
+                    authViewModel = authViewModel,
+                    taskViewModel = taskViewModel,
+                    isHeaderExpanded = isHeaderExpanded,
+                    onToggleHeader = { isHeaderExpanded = !isHeaderExpanded }
+                )
             }
             composable(
                 route = "cadastro_task?taskId={taskId}",

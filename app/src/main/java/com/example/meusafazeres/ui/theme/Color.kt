@@ -6,10 +6,9 @@ val Purple80 = Color(0xFFD0BCFF)
 val PurpleGrey80 = Color(0xFFCCC2DC)
 val Pink80 = Color(0xFFEFB8C8)
 
-val BrandViolet = Color(0xFF5B21B6) // Even Darker Violet (Tailwind violet-800)
-val BrandLightPurple = Color(0xFFEDE9FE) // Slightly darker background (Tailwind violet-100)
+val BrandPrimary = Color(0xFFD6C7FF)
+val BrandSecondary = Color(0xFF7F57F1)
 val BrandWhite = Color(0xFFFFFFFF)
-val BrandDarkViolet = Color(0xFF4C1D95) // Deepest Violet (Tailwind violet-900)
 
 // Priority Colors
 val PriorityHigh = Color(0xFFFFCDD2) // Red 100
