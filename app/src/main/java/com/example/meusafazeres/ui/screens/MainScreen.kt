@@ -388,7 +388,7 @@ fun MainScreen(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(32.dp)
+                            .size(36.dp)
                             .background(MaterialTheme.colorScheme.primary, shape = CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
@@ -396,7 +396,7 @@ fun MainScreen(
                             imageVector = if (searchText.isNotEmpty()) Icons.Default.Close else Icons.Default.Search,
                             contentDescription = "Buscar",
                             tint = Color.White,
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(24.dp)
                         )
                     }
                 }
