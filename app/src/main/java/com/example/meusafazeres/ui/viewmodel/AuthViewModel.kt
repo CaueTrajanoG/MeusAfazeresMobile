@@ -44,6 +44,7 @@ class AuthViewModel(
 
     init {
         currentUser?.let { fbUser ->
+            _uiState.value = AuthUIState.Success(fbUser)
             viewModelScope.launch {
                 try {
                     val userData = userRepository.getUser(fbUser.uid)
@@ -98,6 +99,7 @@ class AuthViewModel(
 
     fun logout() {
         repository.logout()
+        _currentUserData.value = null
         _uiState.value = AuthUIState.Idle
     }
 

@@ -22,8 +22,11 @@ import androidx.navigation.NavController
 import com.example.meusafazeres.model.Task
 import com.example.meusafazeres.ui.components.TaskCard
 import com.example.meusafazeres.ui.viewmodel.AuthViewModel
+import com.example.meusafazeres.ui.viewmodel.AuthUIState
 import com.example.meusafazeres.ui.viewmodel.TaskUIState
 import com.example.meusafazeres.ui.viewmodel.TaskViewModel
+import androidx.compose.ui.platform.LocalContext
+import android.widget.Toast
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,7 +38,8 @@ fun MainScreen(
     var searchText by remember { mutableStateOf("") }
     var taskToDelete: Task? by remember { mutableStateOf<Task?>(null) }
     
-    val userId = authViewModel.currentUser?.uid ?: ""
+    val authState by authViewModel.uiState.collectAsState()
+    val userId = (authState as? AuthUIState.Success)?.user?.uid ?: ""
     val taskListState by taskViewModel.uiState.collectAsState()
 
     if (taskToDelete != null) {
@@ -70,6 +74,13 @@ fun MainScreen(
         )
     }
 
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        taskViewModel.errorEvents.collect { message ->
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        }
+    }
+
     LaunchedEffect(userId) {
         taskViewModel.loadTasks(userId)
     }
@@ -80,7 +91,7 @@ fun MainScreen(
             .background(MaterialTheme.colorScheme.background)
     ) {
         val userData by authViewModel.currentUserData.collectAsState()
-        val currentUser = authViewModel.currentUser
+        val currentUser = (authState as? AuthUIState.Success)?.user
         
         if (currentUser != null) {
             Text(

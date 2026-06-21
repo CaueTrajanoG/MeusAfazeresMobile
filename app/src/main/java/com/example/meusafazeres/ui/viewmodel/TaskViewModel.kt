@@ -5,6 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.meusafazeres.model.Task
 import com.example.meusafazeres.model.TaskStatus
 import com.example.meusafazeres.repository.TaskRepository
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -20,6 +23,9 @@ class TaskViewModel(
     private val repository: TaskRepository
 ) : ViewModel() {
     
+    private val _errorEvents = MutableSharedFlow<String>()
+    val errorEvents: SharedFlow<String> = _errorEvents.asSharedFlow()
+
     private val _uiState = MutableStateFlow<TaskUIState>(TaskUIState.Idle)
     val uiState: StateFlow<TaskUIState> = _uiState
 
@@ -99,7 +105,7 @@ class TaskViewModel(
                     _uiState.value = TaskUIState.Success(_allLoadedTasks.toList())
                 }
             } catch (e: Exception) {
-                // Handle error
+                _errorEvents.emit("Erro ao atualizar status do afazer")
             }
         }
     }
@@ -111,7 +117,7 @@ class TaskViewModel(
                 _allLoadedTasks.removeAll { it.id == taskId }
                 _uiState.value = TaskUIState.Success(_allLoadedTasks.toList())
             } catch (e: Exception) {
-                // Handle error
+                _errorEvents.emit("Erro ao excluir afazer")
             }
         }
     }
@@ -123,7 +129,7 @@ class TaskViewModel(
                 _allLoadedTasks.add(0, createdTask)
                 _uiState.value = TaskUIState.Success(_allLoadedTasks.toList())
             } catch (e: Exception) {
-                // Handle error
+                _errorEvents.emit("Erro ao adicionar afazer")
             }
         }
     }
@@ -142,7 +148,7 @@ class TaskViewModel(
                     _uiState.value = TaskUIState.Success(_allLoadedTasks.toList())
                 }
             } catch (e: Exception) {
-                // Handle error
+                _errorEvents.emit("Erro ao salvar alterações do afazer")
             }
         }
     }
