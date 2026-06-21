@@ -84,7 +84,8 @@ fun MainScreen(
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Text(
                         text = "Status",
-                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(vertical = 4.dp)
                     )
                     Row(
@@ -124,7 +125,8 @@ fun MainScreen(
 
                     Text(
                         text = "Prioridade",
-                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(vertical = 4.dp)
                     )
                     Column(
