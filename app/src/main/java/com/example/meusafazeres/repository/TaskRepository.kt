@@ -93,7 +93,7 @@ class TaskRepository(private val taskDao: TaskDao) {
 
         val doc = FirestoreDocument(fields = mapTaskToFirestore(task))
         // Identify which fields to update
-        val updateMask = listOf("titulo", "descricao", "prioridade", "status", "removido")
+        val updateMask = listOf("titulo", "descricao", "prioridade", "status", "dueDate", "removido")
         val response = api.updateTask(task.id!!, updateMask, doc)
         return mapFirestoreToTask(response)
     }
