@@ -5,9 +5,12 @@ import android.widget.DatePicker
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -206,32 +209,46 @@ fun CadastroTaskScreen(
         
         Spacer(modifier = Modifier.height(16.dp))
         
+        val interactionSource = remember { MutableInteractionSource() }
+        val isPressed by interactionSource.collectIsPressedAsState()
+        LaunchedEffect(isPressed) {
+            if (isPressed) {
+                datePickerDialog.show()
+            }
+        }
+
         // Date Selection
         OutlinedTextField(
             value = dueDate?.let { dateFormat.format(it) } ?: "",
             onValueChange = {},
             label = { Text("Data do Afazer", fontWeight = FontWeight.Bold, fontSize = 16.sp) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { datePickerDialog.show() },
-            enabled = false,
+            modifier = Modifier.fillMaxWidth(),
             readOnly = true,
+            enabled = true,
+            interactionSource = interactionSource,
             leadingIcon = { Icon(Icons.Default.DateRange, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+            trailingIcon = {
+                if (dueDate != null) {
+                    IconButton(onClick = { dueDate = null }) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Limpar data do afazer",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            },
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = MaterialTheme.colorScheme.primary,
                 unfocusedTextColor = MaterialTheme.colorScheme.primary,
-                disabledTextColor = MaterialTheme.colorScheme.primary,
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color.White,
-                disabledContainerColor = Color.White,
                 errorContainerColor = Color.White,
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
                 unfocusedBorderColor = Color.Transparent,
-                disabledBorderColor = Color.Transparent,
                 errorBorderColor = MaterialTheme.colorScheme.error,
                 focusedLabelColor = MaterialTheme.colorScheme.primary,
-                unfocusedLabelColor = MaterialTheme.colorScheme.primary,
-                disabledLabelColor = MaterialTheme.colorScheme.primary
+                unfocusedLabelColor = MaterialTheme.colorScheme.primary
             )
         )
         
