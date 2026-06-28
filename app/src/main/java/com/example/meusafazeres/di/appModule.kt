@@ -26,7 +26,7 @@ val appModule = module {
     // Repositories & ViewModels
     singleOf(::AuthRepository)
     singleOf(::UserRepository)
-    single { TaskRepository(get()) }
+    singleOf(::TaskRepository)
     viewModelOf(::AuthViewModel)
     viewModelOf(::TaskViewModel)
 }
